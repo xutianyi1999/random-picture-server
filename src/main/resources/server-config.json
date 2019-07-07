@@ -1,6 +1,6 @@
 {
   "port": 1999,
-  "path": "C:/Users/xutia/Pictures",
+  "path": "D:\\application\\random-picture-server\\img",
   "domainList": [
     "koumakan.club",
     "www.koumakan.club"
