@@ -78,7 +78,7 @@ public class HttpImgServerHandler extends SimpleChannelInboundHandler<FullHttpRe
 
     private void sendError(ChannelHandlerContext channelHandlerContext, HttpResponseStatus status) {
         FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, status);
-        HttpUtil.setContentLength(response, response.content().readableBytes());
+        HttpUtil.setContentLength(response, 0);
         channelHandlerContext.writeAndFlush(response);
     }
 
