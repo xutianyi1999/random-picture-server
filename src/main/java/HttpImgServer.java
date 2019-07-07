@@ -45,6 +45,11 @@ public class HttpImgServer {
         domainList = serverConfigEntity.getDomainList();
         setImgFileList(new File(serverConfigEntity.getPath()));
 
+        if (fileList.size() == 0) {
+            System.out.println("ERROR: Picture Not Found");
+            return;
+        }
+
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
         EventLoopGroup workerGroup = new NioEventLoopGroup();
 
