@@ -70,6 +70,7 @@ public class HttpImgServerHandler extends SimpleChannelInboundHandler<FullHttpRe
 
         DefaultHttpResponse defaultHttpResponse = new DefaultHttpResponse(HTTP_1_1, HttpResponseStatus.OK);
         defaultHttpResponse.headers().set(HttpHeaderNames.CONTENT_TYPE, HttpImgServer.mimeTypesMap.getContentType(file.getPath()));
+        HttpUtil.setContentLength(defaultHttpResponse, fileLength);
         channelHandlerContext.write(defaultHttpResponse);
         channelHandlerContext.write(new DefaultFileRegion(randomAccessFile.getChannel(), 0, fileLength));
         channelHandlerContext.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
@@ -77,6 +78,7 @@ public class HttpImgServerHandler extends SimpleChannelInboundHandler<FullHttpRe
 
     private void sendError(ChannelHandlerContext channelHandlerContext, HttpResponseStatus status) {
         FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, status);
+        HttpUtil.setContentLength(response, response.content().readableBytes());
         channelHandlerContext.writeAndFlush(response);
     }
 
