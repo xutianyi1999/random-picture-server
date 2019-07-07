@@ -5,13 +5,16 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.*;
 import io.netty.util.CharsetUtil;
 
-import javax.activation.MimetypesFileTypeMap;
 import java.io.File;
+import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.Random;
 
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 public class HttpImgServerHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
+
+    private Random random = new Random();
 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, FullHttpRequest fullHttpRequest) {
@@ -28,20 +31,43 @@ public class HttpImgServerHandler extends SimpleChannelInboundHandler<FullHttpRe
         HttpHeaders httpHeaders = fullHttpRequest.headers();
         String referer = httpHeaders.get(HttpHeaderNames.REFERER);
 
-        if (referer == null || referer.contains("koumakan.club")) {
+        boolean flag = false;
+
+        if (referer == null) {
+            sendError(channelHandlerContext, HttpResponseStatus.FORBIDDEN);
+            return;
+        } else {
+            for (String domain : HttpImgServer.domainList) {
+                if (referer.contains(domain)) {
+                    flag = true;
+                    break;
+                }
+            }
+        }
+
+        if (!flag) {
             sendError(channelHandlerContext, HttpResponseStatus.FORBIDDEN);
             return;
         }
 
-        File file = new File("C:\\Users\\xutia\\Pictures\\v2-18701cc218618f5e315550190ee61dff_hd.jpg");
-        RandomAccessFile randomAccessFile;
+        File file = HttpImgServer.fileList.get(random.nextInt(HttpImgServer.fileList.size()));
+        RandomAccessFile randomAccessFile = null;
         long fileLength;
 
         try {
-            randomAccessFile = new RandomAccessFile((file), "r");
+            randomAccessFile = new RandomAccessFile(file, "r");
             fileLength = randomAccessFile.length();
         } catch (Exception e) {
             e.printStackTrace();
+
+            try {
+                if (randomAccessFile != null) {
+                    randomAccessFile.close();
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+
             sendError(channelHandlerContext, HttpResponseStatus.INTERNAL_SERVER_ERROR);
             return;
         }
@@ -59,8 +85,7 @@ public class HttpImgServerHandler extends SimpleChannelInboundHandler<FullHttpRe
     }
 
     private void setContentTypeHeader(HttpResponse response, File file) {
-        MimetypesFileTypeMap mimeTypesMap = new MimetypesFileTypeMap();
-        response.headers().set(HttpHeaderNames.CONTENT_TYPE, mimeTypesMap.getContentType(file.getPath()));
+        response.headers().set(HttpHeaderNames.CONTENT_TYPE, HttpImgServer.mimeTypesMap.getContentType(file.getPath()));
     }
 
     private void sendError(ChannelHandlerContext channelHandlerContext, HttpResponseStatus status) {
