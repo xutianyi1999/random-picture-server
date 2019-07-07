@@ -53,7 +53,7 @@ public class HttpImgServer {
 
             serverBootstrap.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
-                    .handler(new LoggingHandler(LogLevel.WARN))
+                    .handler(new LoggingHandler(LogLevel.ERROR))
                     .childHandler(new HttpImgServerInitializer());
 
             Channel channel = serverBootstrap.bind(serverConfigEntity.getPort()).sync().channel();

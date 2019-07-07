@@ -1,9 +1,7 @@
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.DefaultFileRegion;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.*;
-import io.netty.util.CharsetUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,13 +28,11 @@ public class HttpImgServerHandler extends SimpleChannelInboundHandler<FullHttpRe
 
         HttpHeaders httpHeaders = fullHttpRequest.headers();
         String referer = httpHeaders.get(HttpHeaderNames.REFERER);
-
         boolean flag = false;
 
-        if (referer == null) {
-            sendError(channelHandlerContext, HttpResponseStatus.FORBIDDEN);
-            return;
-        } else {
+        if (HttpImgServer.domainList == null || HttpImgServer.domainList.size() == 0) {
+            flag = true;
+        } else if (referer != null) {
             for (String domain : HttpImgServer.domainList) {
                 if (referer.contains(domain)) {
                     flag = true;
@@ -73,30 +69,14 @@ public class HttpImgServerHandler extends SimpleChannelInboundHandler<FullHttpRe
         }
 
         DefaultHttpResponse defaultHttpResponse = new DefaultHttpResponse(HTTP_1_1, HttpResponseStatus.OK);
-        HttpUtil.setContentLength(defaultHttpResponse, fileLength);
-        setContentTypeHeader(defaultHttpResponse, file);
+        defaultHttpResponse.headers().set(HttpHeaderNames.CONTENT_TYPE, HttpImgServer.mimeTypesMap.getContentType(file.getPath()));
         channelHandlerContext.write(defaultHttpResponse);
-
-        channelHandlerContext.write(
-                new DefaultFileRegion(randomAccessFile.getChannel(), 0, fileLength),
-                channelHandlerContext.newProgressivePromise()
-        );
+        channelHandlerContext.write(new DefaultFileRegion(randomAccessFile.getChannel(), 0, fileLength));
         channelHandlerContext.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
     }
 
-    private void setContentTypeHeader(HttpResponse response, File file) {
-        response.headers().set(HttpHeaderNames.CONTENT_TYPE, HttpImgServer.mimeTypesMap.getContentType(file.getPath()));
-    }
-
     private void sendError(ChannelHandlerContext channelHandlerContext, HttpResponseStatus status) {
-        FullHttpResponse response = new DefaultFullHttpResponse(
-                HTTP_1_1,
-                status,
-                Unpooled.copiedBuffer("Failure: " + status + "\r\n", CharsetUtil.UTF_8)
-        );
-
-        response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/plain; charset=UTF-8");
-        HttpUtil.setContentLength(response, response.content().readableBytes());
+        FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, status);
         channelHandlerContext.writeAndFlush(response);
     }
 
