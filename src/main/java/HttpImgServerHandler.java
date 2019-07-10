@@ -2,6 +2,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.DefaultFileRegion;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.*;
+import io.netty.util.internal.StringUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,6 +28,13 @@ public class HttpImgServerHandler extends SimpleChannelInboundHandler<FullHttpRe
         }
 
         HttpHeaders httpHeaders = fullHttpRequest.headers();
+        String userAgent = httpHeaders.get(HttpHeaderNames.USER_AGENT);
+
+        if (StringUtil.isNullOrEmpty(userAgent)) {
+            sendError(channelHandlerContext, HttpResponseStatus.FORBIDDEN);
+            return;
+        }
+
         String referer = httpHeaders.get(HttpHeaderNames.REFERER);
         boolean flag = false;
 
