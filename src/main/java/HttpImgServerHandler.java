@@ -1,6 +1,4 @@
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.DefaultFileRegion;
-import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.*;
 import io.netty.handler.codec.http.*;
 import io.netty.util.internal.StringUtil;
 
@@ -81,13 +79,15 @@ public class HttpImgServerHandler extends SimpleChannelInboundHandler<FullHttpRe
         HttpUtil.setContentLength(defaultHttpResponse, fileLength);
         channelHandlerContext.write(defaultHttpResponse);
         channelHandlerContext.write(new DefaultFileRegion(randomAccessFile.getChannel(), 0, fileLength));
-        channelHandlerContext.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+        ChannelFuture channelFuture = channelHandlerContext.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+        channelFuture.addListener(ChannelFutureListener.CLOSE);
     }
 
     private void sendError(ChannelHandlerContext channelHandlerContext, HttpResponseStatus status) {
         FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, status);
         HttpUtil.setContentLength(response, 0);
-        channelHandlerContext.writeAndFlush(response);
+        ChannelFuture channelFuture = channelHandlerContext.writeAndFlush(response);
+        channelFuture.addListener(ChannelFutureListener.CLOSE);
     }
 
     @Override
