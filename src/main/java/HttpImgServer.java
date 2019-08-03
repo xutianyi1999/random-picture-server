@@ -6,8 +6,6 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
-import io.netty.util.CharsetUtil;
-import org.apache.commons.io.IOUtils;
 
 import javax.activation.MimetypesFileTypeMap;
 import java.io.File;
@@ -28,7 +26,7 @@ public class HttpImgServer {
 
         try {
             inputStream = HttpImgServer.class.getResourceAsStream("/server-config.json");
-            serverConfigEntity = JSONObject.parseObject(IOUtils.toString(inputStream, CharsetUtil.UTF_8), ServerConfigEntity.class);
+            serverConfigEntity = JSONObject.parseObject(inputStream, ServerConfigEntity.class);
         } catch (Exception e) {
             e.printStackTrace();
             return;
