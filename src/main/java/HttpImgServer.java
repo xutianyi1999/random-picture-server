@@ -16,8 +16,8 @@ import java.util.List;
 
 public class HttpImgServer {
 
+    private static MimetypesFileTypeMap mimeTypesMap = new MimetypesFileTypeMap();
     static List<File> fileList = new ArrayList<>();
-    static MimetypesFileTypeMap mimeTypesMap = new MimetypesFileTypeMap();
     static List<String> domainList;
 
     public static void main(String[] args) {
