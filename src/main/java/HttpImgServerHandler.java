@@ -5,13 +5,10 @@ import io.netty.util.internal.StringUtil;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.util.Random;
 
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 public class HttpImgServerHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
-
-    private Random random = new Random();
 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, FullHttpRequest fullHttpRequest) {
@@ -52,7 +49,7 @@ public class HttpImgServerHandler extends SimpleChannelInboundHandler<FullHttpRe
             return;
         }
 
-        File file = HttpImgServer.fileList.get(random.nextInt(HttpImgServer.fileList.size()));
+        File file = HttpImgServer.fileList.get(HttpImgServer.random.nextInt(HttpImgServer.fileList.size()));
         RandomAccessFile randomAccessFile = null;
         long fileLength;
 

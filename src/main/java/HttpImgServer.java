@@ -13,13 +13,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class HttpImgServer {
 
     static List<File> fileList = new ArrayList<>();
     static List<String> domainList;
-    private static boolean isWin = System.getProperty("os.name").equalsIgnoreCase("WIN");
-    private static MimetypesFileTypeMap mimeTypesMap = new MimetypesFileTypeMap();
+    final static Random random = new Random();
+    private final static boolean isWin = System.getProperty("os.name").equalsIgnoreCase("WIN");
+    private final static MimetypesFileTypeMap mimeTypesMap = new MimetypesFileTypeMap();
 
     public static void main(String[] args) {
         InputStream inputStream = null;
