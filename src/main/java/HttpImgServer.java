@@ -16,9 +16,10 @@ import java.util.List;
 
 public class HttpImgServer {
 
-    private static MimetypesFileTypeMap mimeTypesMap = new MimetypesFileTypeMap();
     static List<File> fileList = new ArrayList<>();
     static List<String> domainList;
+    private static boolean isWin = System.getProperty("os.name").equalsIgnoreCase("WIN");
+    private static MimetypesFileTypeMap mimeTypesMap = new MimetypesFileTypeMap();
 
     public static void main(String[] args) {
         InputStream inputStream = null;
@@ -85,7 +86,11 @@ public class HttpImgServer {
                 setImgFileList(fileTemp);
             }
         } else if (file.isFile()) {
-            if (mimeTypesMap.getContentType(file).contains("image")) {
+            if (isWin) {
+                if (mimeTypesMap.getContentType(file).contains("image")) {
+                    fileList.add(file);
+                }
+            } else {
                 fileList.add(file);
             }
         }
