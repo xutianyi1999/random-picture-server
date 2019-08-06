@@ -9,7 +9,6 @@ import io.netty.handler.logging.LoggingHandler;
 
 import javax.activation.MimetypesFileTypeMap;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,23 +23,15 @@ public class HttpImgServer {
     private final static MimetypesFileTypeMap mimeTypesMap = new MimetypesFileTypeMap();
 
     public static void main(String[] args) {
-        InputStream inputStream = null;
         ServerConfigEntity serverConfigEntity;
 
-        try {
-            inputStream = HttpImgServer.class.getResourceAsStream("/server-config.json");
+        try (
+                InputStream inputStream = HttpImgServer.class.getResourceAsStream("/server-config.json")
+        ) {
             serverConfigEntity = JSONObject.parseObject(inputStream, ServerConfigEntity.class);
         } catch (Exception e) {
             e.printStackTrace();
             return;
-        } finally {
-            try {
-                if (inputStream != null) {
-                    inputStream.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
 
         domainList = serverConfigEntity.getDomainList();
