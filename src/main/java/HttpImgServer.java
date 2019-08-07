@@ -49,24 +49,20 @@ public class HttpImgServer {
 
         EventLoopGroup bossGroup;
         EventLoopGroup workerGroup;
+        Class<? extends ServerSocketChannel> serverSocketChannel;
 
         if (isLinux) {
             bossGroup = new EpollEventLoopGroup();
             workerGroup = new EpollEventLoopGroup();
+            serverSocketChannel = EpollServerSocketChannel.class;
         } else {
             bossGroup = new NioEventLoopGroup();
             workerGroup = new NioEventLoopGroup();
+            serverSocketChannel = NioServerSocketChannel.class;
         }
 
         try {
             ServerBootstrap serverBootstrap = new ServerBootstrap();
-            Class<? extends ServerSocketChannel> serverSocketChannel;
-
-            if (isLinux) {
-                serverSocketChannel = EpollServerSocketChannel.class;
-            } else {
-                serverSocketChannel = NioServerSocketChannel.class;
-            }
 
             serverBootstrap.group(bossGroup, workerGroup)
                     .channel(serverSocketChannel)
