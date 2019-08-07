@@ -2,7 +2,10 @@ import com.alibaba.fastjson.JSONObject;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.ServerSocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
@@ -19,7 +22,9 @@ public class HttpImgServer {
     static List<File> fileList = new ArrayList<>();
     static List<String> domainList;
     final static Random random = new Random();
-    private final static boolean isWin = System.getProperty("os.name").equalsIgnoreCase("WIN");
+    private final static String os = System.getProperty("os.name");
+    private final static boolean isLinux = os.contains("Linux");
+    private final static boolean isWindows = os.contains("Win");
     private final static MimetypesFileTypeMap mimeTypesMap = new MimetypesFileTypeMap();
 
     public static void main(String[] args) {
@@ -42,14 +47,29 @@ public class HttpImgServer {
             return;
         }
 
-        EventLoopGroup bossGroup = new NioEventLoopGroup();
-        EventLoopGroup workerGroup = new NioEventLoopGroup();
+        EventLoopGroup bossGroup;
+        EventLoopGroup workerGroup;
+
+        if (isLinux) {
+            bossGroup = new EpollEventLoopGroup();
+            workerGroup = new EpollEventLoopGroup();
+        } else {
+            bossGroup = new NioEventLoopGroup();
+            workerGroup = new NioEventLoopGroup();
+        }
 
         try {
             ServerBootstrap serverBootstrap = new ServerBootstrap();
+            Class<? extends ServerSocketChannel> serverSocketChannel;
+
+            if (isLinux) {
+                serverSocketChannel = EpollServerSocketChannel.class;
+            } else {
+                serverSocketChannel = NioServerSocketChannel.class;
+            }
 
             serverBootstrap.group(bossGroup, workerGroup)
-                    .channel(NioServerSocketChannel.class)
+                    .channel(serverSocketChannel)
                     .handler(new LoggingHandler(LogLevel.ERROR))
                     .childHandler(new HttpImgServerInitializer());
 
@@ -79,7 +99,7 @@ public class HttpImgServer {
                 setImgFileList(fileTemp);
             }
         } else if (file.isFile()) {
-            if (isWin) {
+            if (isWindows) {
                 if (mimeTypesMap.getContentType(file).contains("image")) {
                     fileList.add(file);
                 }
