@@ -35,7 +35,7 @@ public class HttpImgServerHandler extends SimpleChannelInboundHandler<FullHttpRe
 
         if (HttpImgServer.domainList == null || HttpImgServer.domainList.size() == 0) {
             flag = true;
-        } else if (referer != null) {
+        } else if (!StringUtil.isNullOrEmpty(referer)) {
             for (String domain : HttpImgServer.domainList) {
                 if (referer.contains(domain)) {
                     flag = true;
