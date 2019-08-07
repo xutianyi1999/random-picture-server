@@ -1,6 +1,6 @@
 {
   "port": 1999,
-  "path": "D:\\application\\random-picture-server\\img",
+  "path": "/home/application/random-picture-server/img",
   "domainList": [
     "koumakan.club",
     "www.koumakan.club"

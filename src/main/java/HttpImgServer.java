@@ -52,10 +52,12 @@ public class HttpImgServer {
         Class<? extends ServerSocketChannel> serverSocketChannel;
 
         if (isLinux) {
+            System.out.println("Epoll Model");
             bossGroup = new EpollEventLoopGroup();
             workerGroup = new EpollEventLoopGroup();
             serverSocketChannel = EpollServerSocketChannel.class;
         } else {
+            System.out.println("NIO Model");
             bossGroup = new NioEventLoopGroup();
             workerGroup = new NioEventLoopGroup();
             serverSocketChannel = NioServerSocketChannel.class;
