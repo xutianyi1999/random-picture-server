@@ -76,10 +76,16 @@ public class HttpImgServerHandler extends SimpleChannelInboundHandler<FullHttpRe
         HttpUtil.setContentLength(defaultHttpResponse, fileLength);
         channelHandlerContext.write(defaultHttpResponse);
         channelHandlerContext.write(new DefaultFileRegion(randomAccessFile.getChannel(), 0, fileLength));
+
         RandomAccessFile finalRandomAccessFile = randomAccessFile;
 
         channelHandlerContext.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT)
-                .addListener((ChannelFutureListener) channelFuture -> finalRandomAccessFile.close());
+                .addListener((ChannelFutureListener) channelFuture -> {
+                    if (!channelFuture.isSuccess()) {
+                        channelHandlerContext.close();
+                    }
+                    finalRandomAccessFile.close();
+                });
     }
 
     private void sendError(ChannelHandlerContext channelHandlerContext, HttpResponseStatus status) {
