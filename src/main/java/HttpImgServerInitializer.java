@@ -3,7 +3,6 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
-import io.netty.handler.stream.ChunkedWriteHandler;
 
 public class HttpImgServerInitializer extends ChannelInitializer<SocketChannel> {
 
@@ -14,7 +13,6 @@ public class HttpImgServerInitializer extends ChannelInitializer<SocketChannel> 
         pipeline.addLast(
                 new HttpServerCodec(),
                 new HttpObjectAggregator(65536),
-                new ChunkedWriteHandler(),
                 new HttpImgServerHandler()
         );
     }
