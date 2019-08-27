@@ -8,6 +8,7 @@ import java.io.RandomAccessFile;
 
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
+@ChannelHandler.Sharable
 public class HttpImgServerHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
     @Override
