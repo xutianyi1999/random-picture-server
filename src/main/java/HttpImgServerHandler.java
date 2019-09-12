@@ -1,5 +1,6 @@
 import io.netty.channel.*;
 import io.netty.handler.codec.http.*;
+import io.netty.handler.timeout.ReadTimeoutException;
 import io.netty.util.internal.StringUtil;
 
 import java.io.File;
@@ -98,7 +99,9 @@ public class HttpImgServerHandler extends SimpleChannelInboundHandler<FullHttpRe
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        cause.printStackTrace();
+        if (!(cause instanceof ReadTimeoutException)) {
+            cause.printStackTrace();
+        }
         ctx.close();
     }
 }
