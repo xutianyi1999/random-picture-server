@@ -1,6 +1,7 @@
 import com.alibaba.fastjson.JSONObject;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollServerSocketChannel;
@@ -69,6 +70,7 @@ public class HttpImgServer {
             serverBootstrap.group(bossGroup, workerGroup)
                     .channel(serverSocketChannel)
                     .handler(new LoggingHandler(LogLevel.ERROR))
+                    .childOption(ChannelOption.SO_KEEPALIVE, true)
                     .childHandler(new HttpImgServerInitializer());
 
             Channel channel = serverBootstrap.bind(serverConfigEntity.getPort()).sync().channel();
