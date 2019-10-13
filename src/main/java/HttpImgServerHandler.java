@@ -88,7 +88,7 @@ public class HttpImgServerHandler extends SimpleChannelInboundHandler<FullHttpRe
 
         RandomAccessFile finalRandomAccessFile = randomAccessFile;
         channelHandlerContext.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT)
-                .addListener((ChannelFutureListener) channelFuture -> {
+                .addListener(channelFuture -> {
                     if (!channelFuture.isSuccess()) {
                         channelHandlerContext.close();
                     }
