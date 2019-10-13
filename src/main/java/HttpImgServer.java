@@ -70,6 +70,7 @@ public class HttpImgServer {
             serverBootstrap.group(bossGroup, workerGroup)
                     .channel(serverSocketChannel)
                     .handler(new LoggingHandler(LogLevel.ERROR))
+                    .childOption(ChannelOption.SO_KEEPALIVE, true)
                     .childOption(ChannelOption.TCP_NODELAY, false)
                     .childHandler(new HttpImgServerInitializer());
 
