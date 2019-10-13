@@ -12,6 +12,12 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 @ChannelHandler.Sharable
 public class HttpImgServerHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
+    private static void sendError(ChannelHandlerContext channelHandlerContext, HttpResponseStatus status) {
+        FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, status);
+        HttpUtil.setContentLength(response, 0);
+        channelHandlerContext.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+    }
+
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, FullHttpRequest fullHttpRequest) {
         if (!fullHttpRequest.decoderResult().isSuccess()) {
@@ -77,11 +83,10 @@ public class HttpImgServerHandler extends SimpleChannelInboundHandler<FullHttpRe
         defaultHttpResponse.headers().set(HttpHeaderNames.CONTENT_TYPE, "image/png");
         HttpUtil.setContentLength(defaultHttpResponse, fileLength);
         channelHandlerContext.write(defaultHttpResponse);
-        channelHandlerContext.write(new DefaultFileRegion(randomAccessFile.getChannel(), 0, fileLength));
 
         RandomAccessFile finalRandomAccessFile = randomAccessFile;
 
-        channelHandlerContext.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT)
+        channelHandlerContext.writeAndFlush(new DefaultFileRegion(randomAccessFile.getChannel(), 0, fileLength))
                 .addListener((ChannelFutureListener) channelFuture -> {
                     if (!channelFuture.isSuccess()) {
                         channelHandlerContext.close();
@@ -90,19 +95,12 @@ public class HttpImgServerHandler extends SimpleChannelInboundHandler<FullHttpRe
                 });
     }
 
-    private void sendError(ChannelHandlerContext channelHandlerContext, HttpResponseStatus status) {
-        FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, status);
-        HttpUtil.setContentLength(response, 0);
-        ChannelFuture channelFuture = channelHandlerContext.writeAndFlush(response);
-        channelFuture.addListener(ChannelFutureListener.CLOSE);
-    }
-
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         if (!(cause instanceof ReadTimeoutException)) {
             cause.printStackTrace();
+            ctx.close();
         }
-        ctx.close();
     }
 }
 
