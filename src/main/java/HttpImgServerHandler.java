@@ -40,13 +40,14 @@ public class HttpImgServerHandler extends SimpleChannelInboundHandler<FullHttpRe
             return;
         }
 
-        String referer = httpHeaders.get(HttpHeaderNames.REFERER);
         boolean flag = false;
 
         if (HttpImgServer.domainList == null) {
             flag = true;
-        } else if (!StringUtil.isNullOrEmpty(referer)) {
-            if (HttpImgServer.domainList.contains(new URL(referer).getHost())) {
+        } else {
+            String referer = httpHeaders.get(HttpHeaderNames.REFERER);
+
+            if (!StringUtil.isNullOrEmpty(referer) && HttpImgServer.domainList.contains(new URL(referer).getHost())) {
                 flag = true;
             }
         }
