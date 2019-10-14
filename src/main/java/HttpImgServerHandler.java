@@ -6,6 +6,8 @@ import io.netty.util.internal.StringUtil;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
@@ -19,7 +21,7 @@ public class HttpImgServerHandler extends SimpleChannelInboundHandler<FullHttpRe
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext channelHandlerContext, FullHttpRequest fullHttpRequest) {
+    protected void channelRead0(ChannelHandlerContext channelHandlerContext, FullHttpRequest fullHttpRequest) throws MalformedURLException {
         if (!fullHttpRequest.decoderResult().isSuccess()) {
             sendError(channelHandlerContext, HttpResponseStatus.FORBIDDEN);
             return;
@@ -44,11 +46,8 @@ public class HttpImgServerHandler extends SimpleChannelInboundHandler<FullHttpRe
         if (HttpImgServer.domainList == null) {
             flag = true;
         } else if (!StringUtil.isNullOrEmpty(referer)) {
-            for (String domain : HttpImgServer.domainList) {
-                if (referer.contains(domain)) {
-                    flag = true;
-                    break;
-                }
+            if (HttpImgServer.domainList.contains(new URL(referer).getHost())) {
+                flag = true;
             }
         }
 
