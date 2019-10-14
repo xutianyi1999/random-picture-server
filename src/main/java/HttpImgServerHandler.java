@@ -57,7 +57,7 @@ public class HttpImgServerHandler extends SimpleChannelInboundHandler<FullHttpRe
             return;
         }
 
-        File file = HttpImgServer.fileList.get(HttpImgServer.random.nextInt(HttpImgServer.fileList.size()));
+        File file = HttpImgServer.FILE_LIST.get(HttpImgServer.RANDOM.nextInt(HttpImgServer.FILE_LIST.size()));
         RandomAccessFile randomAccessFile = null;
         long fileLength;
 

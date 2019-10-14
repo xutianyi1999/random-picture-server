@@ -20,9 +20,10 @@ import java.util.Random;
 
 public class HttpImgServer {
 
-    static List<File> fileList = new ArrayList<>();
     static List<String> domainList;
-    final static Random random = new Random();
+    final static List<File> FILE_LIST = new ArrayList<>();
+    final static Random RANDOM = new Random();
+
     private final static String os = System.getProperty("os.name");
     private final static boolean isLinux = os.contains("Linux");
     private final static boolean isWindows = os.contains("Win");
@@ -48,7 +49,7 @@ public class HttpImgServer {
 
         setImgFileList(new File(serverConfigEntity.getPath()));
 
-        if (fileList.size() == 0) {
+        if (FILE_LIST.size() == 0) {
             System.out.println("ERROR: Picture Not Found");
             return;
         }
@@ -107,10 +108,10 @@ public class HttpImgServer {
         } else if (file.isFile()) {
             if (isWindows) {
                 if (mimeTypesMap.getContentType(file).contains("image")) {
-                    fileList.add(file);
+                    FILE_LIST.add(file);
                 }
             } else {
-                fileList.add(file);
+                FILE_LIST.add(file);
             }
         }
     }
