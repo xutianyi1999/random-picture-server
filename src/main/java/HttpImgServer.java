@@ -40,7 +40,12 @@ public class HttpImgServer {
             return;
         }
 
-        domainList = serverConfigEntity.getDomainList();
+        List<String> domainList = serverConfigEntity.getDomainList();
+
+        if (domainList != null && domainList.size() > 0) {
+            HttpImgServer.domainList = domainList;
+        }
+
         setImgFileList(new File(serverConfigEntity.getPath()));
 
         if (fileList.size() == 0) {

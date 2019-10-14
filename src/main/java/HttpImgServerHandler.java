@@ -41,7 +41,7 @@ public class HttpImgServerHandler extends SimpleChannelInboundHandler<FullHttpRe
         String referer = httpHeaders.get(HttpHeaderNames.REFERER);
         boolean flag = false;
 
-        if (HttpImgServer.domainList == null || HttpImgServer.domainList.size() == 0) {
+        if (HttpImgServer.domainList == null) {
             flag = true;
         } else if (!StringUtil.isNullOrEmpty(referer)) {
             for (String domain : HttpImgServer.domainList) {
