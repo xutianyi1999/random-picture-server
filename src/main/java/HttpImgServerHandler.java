@@ -8,11 +8,14 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Random;
 
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 @ChannelHandler.Sharable
 public class HttpImgServerHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
+
+    private final static Random RANDOM = new Random();
 
     private static void sendError(ChannelHandlerContext channelHandlerContext, HttpResponseStatus status) {
         FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, status);
@@ -57,7 +60,7 @@ public class HttpImgServerHandler extends SimpleChannelInboundHandler<FullHttpRe
             return;
         }
 
-        File file = HttpImgServer.FILE_LIST.get(HttpImgServer.RANDOM.nextInt(HttpImgServer.FILE_LIST.size()));
+        File file = HttpImgServer.FILE_LIST.get(RANDOM.nextInt(HttpImgServer.FILE_LIST.size()));
         RandomAccessFile randomAccessFile = null;
         long fileLength;
 

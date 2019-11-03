@@ -16,13 +16,11 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class HttpImgServer {
 
     static List<String> domainList;
     final static List<File> FILE_LIST = new ArrayList<>();
-    final static Random RANDOM = new Random();
 
     private final static String os = System.getProperty("os.name");
     private final static boolean isLinux = os.contains("Linux");
