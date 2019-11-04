@@ -30,9 +30,7 @@ public class HttpImgServer {
     public static void main(String[] args) {
         ServerConfigEntity serverConfigEntity;
 
-        try (
-                InputStream inputStream = HttpImgServer.class.getResourceAsStream("/server-config.json")
-        ) {
+        try (InputStream inputStream = HttpImgServer.class.getResourceAsStream("/server-config.json")) {
             serverConfigEntity = JSONObject.parseObject(inputStream, ServerConfigEntity.class);
         } catch (Exception e) {
             e.printStackTrace();

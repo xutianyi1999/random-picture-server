@@ -17,21 +17,21 @@ public class HttpImgServerHandler extends SimpleChannelInboundHandler<FullHttpRe
 
     private final static Random RANDOM = new Random();
 
-    private static void sendError(ChannelHandlerContext channelHandlerContext, HttpResponseStatus status) {
+    private static void sendError(ChannelHandlerContext ctx, HttpResponseStatus status) {
         FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, status);
         HttpUtil.setContentLength(response, 0);
-        channelHandlerContext.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+        ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext channelHandlerContext, FullHttpRequest fullHttpRequest) throws MalformedURLException {
+    protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest fullHttpRequest) throws MalformedURLException {
         if (!fullHttpRequest.decoderResult().isSuccess()) {
-            sendError(channelHandlerContext, HttpResponseStatus.FORBIDDEN);
+            sendError(ctx, HttpResponseStatus.FORBIDDEN);
             return;
         }
 
         if (fullHttpRequest.method() != HttpMethod.GET) {
-            sendError(channelHandlerContext, HttpResponseStatus.FORBIDDEN);
+            sendError(ctx, HttpResponseStatus.FORBIDDEN);
             return;
         }
 
@@ -39,7 +39,7 @@ public class HttpImgServerHandler extends SimpleChannelInboundHandler<FullHttpRe
         String userAgent = httpHeaders.get(HttpHeaderNames.USER_AGENT);
 
         if (StringUtil.isNullOrEmpty(userAgent)) {
-            sendError(channelHandlerContext, HttpResponseStatus.FORBIDDEN);
+            sendError(ctx, HttpResponseStatus.FORBIDDEN);
             return;
         }
 
@@ -56,7 +56,7 @@ public class HttpImgServerHandler extends SimpleChannelInboundHandler<FullHttpRe
         }
 
         if (!flag) {
-            sendError(channelHandlerContext, HttpResponseStatus.FORBIDDEN);
+            sendError(ctx, HttpResponseStatus.FORBIDDEN);
             return;
         }
 
@@ -78,7 +78,7 @@ public class HttpImgServerHandler extends SimpleChannelInboundHandler<FullHttpRe
                 ex.printStackTrace();
             }
 
-            sendError(channelHandlerContext, HttpResponseStatus.INTERNAL_SERVER_ERROR);
+            sendError(ctx, HttpResponseStatus.INTERNAL_SERVER_ERROR);
             return;
         }
 
@@ -88,14 +88,14 @@ public class HttpImgServerHandler extends SimpleChannelInboundHandler<FullHttpRe
                 .set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE)
                 .set(HttpHeaderNames.CONTENT_LENGTH, fileLength);
 
-        channelHandlerContext.write(defaultHttpResponse);
-        channelHandlerContext.write(new DefaultFileRegion(randomAccessFile.getChannel(), 0, fileLength));
+        ctx.write(defaultHttpResponse);
+        ctx.write(new DefaultFileRegion(randomAccessFile.getChannel(), 0, fileLength));
 
         RandomAccessFile finalRandomAccessFile = randomAccessFile;
-        channelHandlerContext.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT)
+        ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT)
                 .addListener(channelFuture -> {
                     if (!channelFuture.isSuccess()) {
-                        channelHandlerContext.close();
+                        ctx.close();
                     }
                     finalRandomAccessFile.close();
                 });
