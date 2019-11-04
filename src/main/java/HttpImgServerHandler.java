@@ -1,4 +1,7 @@
-import io.netty.channel.*;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.DefaultFileRegion;
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.timeout.ReadTimeoutException;
 import io.netty.util.internal.StringUtil;
@@ -17,21 +20,15 @@ public class HttpImgServerHandler extends SimpleChannelInboundHandler<FullHttpRe
 
     private final static Random RANDOM = new Random();
 
-    private static void sendError(ChannelHandlerContext ctx, HttpResponseStatus status) {
-        FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, status);
-        HttpUtil.setContentLength(response, 0);
-        ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
-    }
-
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest fullHttpRequest) throws MalformedURLException {
         if (!fullHttpRequest.decoderResult().isSuccess()) {
-            sendError(ctx, HttpResponseStatus.FORBIDDEN);
+            ctx.close();
             return;
         }
 
         if (fullHttpRequest.method() != HttpMethod.GET) {
-            sendError(ctx, HttpResponseStatus.FORBIDDEN);
+            ctx.close();
             return;
         }
 
@@ -39,7 +36,7 @@ public class HttpImgServerHandler extends SimpleChannelInboundHandler<FullHttpRe
         String userAgent = httpHeaders.get(HttpHeaderNames.USER_AGENT);
 
         if (StringUtil.isNullOrEmpty(userAgent)) {
-            sendError(ctx, HttpResponseStatus.FORBIDDEN);
+            ctx.close();
             return;
         }
 
@@ -56,7 +53,7 @@ public class HttpImgServerHandler extends SimpleChannelInboundHandler<FullHttpRe
         }
 
         if (!flag) {
-            sendError(ctx, HttpResponseStatus.FORBIDDEN);
+            ctx.close();
             return;
         }
 
@@ -78,7 +75,7 @@ public class HttpImgServerHandler extends SimpleChannelInboundHandler<FullHttpRe
                 ex.printStackTrace();
             }
 
-            sendError(ctx, HttpResponseStatus.INTERNAL_SERVER_ERROR);
+            ctx.close();
             return;
         }
 
