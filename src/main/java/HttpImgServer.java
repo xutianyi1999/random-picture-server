@@ -3,6 +3,7 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.epoll.EpollChannelOption;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -55,12 +56,12 @@ public class HttpImgServer {
         Class<? extends ServerSocketChannel> serverSocketChannel;
 
         if (isLinux) {
-            System.out.println("Epoll Model");
+            System.out.println("EPOLL_MODE");
             bossGroup = new EpollEventLoopGroup();
             workerGroup = new EpollEventLoopGroup();
             serverSocketChannel = EpollServerSocketChannel.class;
         } else {
-            System.out.println("NIO Model");
+            System.out.println("NIO_MODE");
             bossGroup = new NioEventLoopGroup();
             workerGroup = new NioEventLoopGroup();
             serverSocketChannel = NioServerSocketChannel.class;
@@ -72,9 +73,12 @@ public class HttpImgServer {
             serverBootstrap.group(bossGroup, workerGroup)
                     .channel(serverSocketChannel)
                     .handler(new LoggingHandler(LogLevel.ERROR))
-                    .childOption(ChannelOption.TCP_NODELAY, false)
                     .childOption(ChannelOption.SO_KEEPALIVE, true)
                     .childHandler(new HttpImgServerInitializer());
+
+            if (isLinux) {
+                serverBootstrap.option(EpollChannelOption.TCP_FASTOPEN, 3);
+            }
 
             Channel channel = serverBootstrap.bind(serverConfigEntity.getPort()).sync().channel();
             channel.closeFuture().sync();
